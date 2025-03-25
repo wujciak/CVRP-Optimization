@@ -1,7 +1,10 @@
-package utils;
+package utils.input;
 
 import java.util.*;
 
+/**
+ * Class representing problem as object with parameters given from parser.
+ */
 public class CVRP {
     private final int dimension;
     private final int capacity;
@@ -20,6 +23,7 @@ public class CVRP {
     }
 
     private double[][] calculateDistanceMatrix() {
+        // for clarity: distanceMatrix[0] remains unused because node IDs start from 1
         double[][] matrix = new double[dimension + 1][dimension + 1];
 
         for (int i = 1; i <= dimension; i++) {
@@ -52,6 +56,8 @@ public class CVRP {
     public int getCapacity() {
         return capacity;
     }
+
+    public int getDimension() { return dimension; }
 
     @Override
     public String toString() {

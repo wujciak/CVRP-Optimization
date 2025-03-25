@@ -1,18 +1,19 @@
-import utils.CVRP;
-import utils.Parser;
+import solvers.GeneticAlgorithm.GeneticAlgorithm;
+import utils.input.CVRP;
+import utils.input.Parser;
+import utils.output.Evaluator;
+import utils.output.RouteArray;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Temporary debug code
         try {
             CVRP problem = Parser.parse("C:\\Users\\Jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\A-n32-k5.vrp.txt");
-
-            System.out.println("Depot: " + problem.getDepotId());
-            System.out.println("Capacity: " + problem.getCapacity());
-            System.out.println("Distance from 1 to 2: " + problem.getDistance(1, 2));
-
+            Evaluator evaluator = new Evaluator(problem);
+            GeneticAlgorithm ga = new GeneticAlgorithm();
+            List<RouteArray> bestSolution = ga.solve(problem, evaluator);
         } catch (IOException e) {
             e.printStackTrace();
         }
