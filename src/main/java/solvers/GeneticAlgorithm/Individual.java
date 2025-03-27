@@ -33,32 +33,26 @@ class Individual {
         this.fitness = fitness;
     }
 
-    public int getGene(int id) {
-        return sequence.get(id);
-    }
-
-    public void setGene(int id, int gene) {
-        sequence.set(id, gene);
-    }
-
     public List<Integer> getSequence() {
         return sequence;
     }
 
-    public CVRP getProblem() {return problem;}
+    public CVRP getProblem() { return problem; }
 
     public void evaluate(Evaluator evaluator) {
+        List<RouteArray> routes = new ArrayList<>();
         RouteArray route = new RouteArray(problem.getDepotId());
 
         for (Integer node : sequence) {
             try {
                 route.addNode(node, problem.getDemand(node), problem.getCapacity());
             } catch (IllegalArgumentException e) {
-                System.err.println(e.getMessage());
-                this.fitness = Integer.MAX_VALUE; // penalty
-                return;
+                routes.add(route);
+                route = new RouteArray(problem.getDepotId());
+                route.addNode(node, problem.getDemand(node), problem.getCapacity());
             }
         }
-        this.fitness = evaluator.calculateScore(List.of(route));
+        routes.add(route);
+        this.fitness = evaluator.calculateScore(routes);
     }
 }

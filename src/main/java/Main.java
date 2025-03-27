@@ -16,8 +16,8 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\hard-instances\\A-n54-k7.vrp.txt";
-        String instance = "A-n54-k7";
+        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\basic-instances\\A-n32-k5.vrp.txt";
+        String instance = "A-n32-k5";
 
         try {
             System.out.println("Parsing started...");
@@ -58,7 +58,7 @@ public class Main {
         System.out.println("Genetic Algorithm running... ");
 
         for (int i = 0; i < runs; i++) {
-            GeneticAlgorithm ga = new GeneticAlgorithm(problem, evaluator, 100, 0.7, 0.1, 5);
+            GeneticAlgorithm ga = new GeneticAlgorithm(problem, evaluator, 800, 0.85, 0.05, 5, 800);
             List<RouteArray> solution = ga.solve();
             scores.add(evaluator.calculateScore(solution));
         }

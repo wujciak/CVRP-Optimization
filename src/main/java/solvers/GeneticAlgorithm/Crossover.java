@@ -29,8 +29,6 @@ class Crossover {
         // Randomly select two crossover points
         int start = rand.nextInt(size);
         int end = rand.nextInt(size - start) + start;
-
-        // Initialize child with empty values
         List<Integer> childSequence = new ArrayList<>(Collections.nCopies(size, -1));
 
         // Copy the segment from parent1
@@ -38,7 +36,7 @@ class Crossover {
             childSequence.set(i, parentSeq1.get(i));
         }
 
-        // Fill remaining positions with parent2 values (in order)
+        // Fill remaining positions with parent2 values
         int index = (end + 1) % size;
         for (Integer value : parentSeq2) {
             if (!childSequence.contains(value)) {

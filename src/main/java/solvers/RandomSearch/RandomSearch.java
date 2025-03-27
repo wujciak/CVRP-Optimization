@@ -26,7 +26,6 @@ public class RandomSearch {
     public List<Double> solve() {
         List<Double> allScores = new ArrayList<>();
         double bestScore = Double.MAX_VALUE;
-        Random rand = new Random();
 
         for (int i = 0; i < numIterations; i++) {
             List<Integer> randomRoute = generateRandomRoute();

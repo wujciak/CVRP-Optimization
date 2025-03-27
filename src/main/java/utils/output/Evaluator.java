@@ -20,17 +20,14 @@ public class Evaluator {
         for (RouteArray route : routes) {
             List<Integer> nodes = route.getNodes();
             int depot = route.getDepotId();
-            int truckLoad = 0;
-            int capacity = problem.getCapacity();
-
-            // Start from depot
+            int truckLoad = 0; // truck's current load
+            int capacity = problem.getCapacity(); // max value truck can carry
             int lastVisited = depot;
-            totalDistance += 0;
 
             for (int node : nodes) {
                 int demand = problem.getDemand(node);
 
-                // Check if adding this node exceeds capacity
+                // check demand and return to depot if needed
                 if (truckLoad + demand > capacity) {
                     // Return to depot
                     totalDistance += problem.getDistance(lastVisited, depot);
@@ -50,5 +47,4 @@ public class Evaluator {
 
         return totalDistance;
     }
-
 }
