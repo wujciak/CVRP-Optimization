@@ -23,23 +23,32 @@ public class GreedyAlgorithm {
         Set<Integer> visited = new HashSet<>();
         int depot = problem.getDepotId();
 
-        while (visited.size() < problem.getDimension() - 1) { // depot is not counted
+        while (visited.size() < problem.getDimension() - 1) {
             RouteArray route = new RouteArray(depot);
             int currentNode = depot;
             int remainingCapacity = problem.getCapacity();
 
             while (true) {
                 int nextNode = findNearestNeighbor(currentNode, visited, remainingCapacity);
-                if (nextNode == -1) break; // No feasible node left
-
+                if (nextNode == -1) break;
                 int demand = problem.getDemand(nextNode);
+
+                if (remainingCapacity < demand) { break; }
+
                 route.addNode(nextNode, demand, problem.getCapacity());
                 visited.add(nextNode);
                 remainingCapacity -= demand;
                 currentNode = nextNode;
             }
-            solution.add(route);
+
+            if (!route.getNodes().isEmpty()) {
+                solution.add(route);
+            }
         }
+
+        double totalDistance = evaluator.calculateScore(solution);
+        System.out.println("Greedy Algorithm Total Distance: " + totalDistance);
+
         return solution;
     }
 

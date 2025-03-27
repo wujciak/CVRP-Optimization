@@ -3,7 +3,6 @@ package utils.input;
 import java.util.*;
 
 /**
- * (Instance)
  * Class representing problem as object with parameters given from parser.
  */
 public class CVRP {
