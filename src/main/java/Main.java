@@ -1,3 +1,4 @@
+import solvers.GreedyAlgorithm.GreedyAlgorithm;
 import solvers.RandomSearch.RandomSearch;
 import solvers.GeneticAlgorithm.GeneticAlgorithm;
 import utils.input.CVRP;
@@ -25,7 +26,7 @@ public class Main {
 
             runRandomSearch(problem, evaluator);
             runGeneticAlgorithm(problem, evaluator);
-            //runGreedyAlgorithm(problem, evaluator);
+            runGreedyAlgorithm(problem, evaluator);
             //runTabuSearch(problem, evaluator);
             //runSimulatedAnnealing(problem, evaluator);
         } catch (IOException e) {
@@ -64,18 +65,21 @@ public class Main {
         logResults("Genetic Algorithm [10x]", scores, runs);
     }
 
-//    /**
-//     * Runs Greedy Algorithm once.
-//     */
-//    private static void runGreedyAlgorithm(CVRP problem, Evaluator evaluator) {
-//        // Assuming GreedySolver class exists
-//        GreedySolver greedy = new GreedySolver(problem, evaluator);
-//        List<RouteArray> bestSolution = greedy.solve();
-//        double bestScore = evaluator.calculateScore(bestSolution);
-//
-//        System.out.println("\n Greedy Algorithm");
-//        System.out.println("Best found: " + bestScore);
-//    }
+    /**
+     * Runs Greedy Algorithm once.
+     */
+    private static void runGreedyAlgorithm(CVRP problem, Evaluator evaluator) {
+        GreedyAlgorithm greedy = new GreedyAlgorithm(problem, evaluator);
+        List<RouteArray> bestSolution = greedy.solve();
+        double bestScore = evaluator.calculateScore(bestSolution);
+        List<Double> scores = new ArrayList<>();
+        scores.add(bestScore);
+
+        System.out.println("\n Greedy Algorithm");
+        System.out.println("Best found: " + bestScore);
+        logResults("Greedy Algorithm [1x]", scores, 1);
+    }
+
 //    private static void runTabuSearch(CVRP problem, Evaluator evaluator) {
 //        int runs = 10;
 //        List<Double> scores = new ArrayList<>();
@@ -97,18 +101,6 @@ public class Main {
 //            scores.add(evaluator.calculateScore(solution));
 //        }
 //            logResults("SA 10x", scores, runs);
-//    }
-//    private static void printStats(List<Double> scores, String alg) {
-//        double best = scores.stream().min(Double::compareTo).orElse(Double.NaN);
-//        double worst = scores.stream().max(Double::compareTo).orElse(Double.NaN);
-//        double avg = scores.stream().mapToDouble(Double::doubleValue).average().orElse(Double.NaN);
-//        double std = calculateStandardDeviation(scores, avg);
-//
-//        System.out.println("\n" + alg + " [10x]");
-//        System.out.println("Best*: " + best);
-//        System.out.println("Worst: " + worst);
-//        System.out.println("Avg: " + avg);
-//        System.out.println("Std: " + std);
 //    }
 
     private static void logResults(String algorithm, List<Double> scores, int iterations) {

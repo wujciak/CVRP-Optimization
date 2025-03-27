@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Random Search for solving the CVRP
+ * Random Search 10k for solving the CVRP
  */
 public class RandomSearch {
     private final CVRP problem;
