@@ -32,8 +32,7 @@ public class GreedyAlgorithm {
                 int nextNode = findNearestNeighbor(currentNode, visited, remainingCapacity);
                 if (nextNode == -1) break;
                 int demand = problem.getDemand(nextNode);
-
-                if (remainingCapacity < demand) { break; }
+                if (remainingCapacity < demand) break;
 
                 route.addNode(nextNode, demand, problem.getCapacity());
                 visited.add(nextNode);
@@ -42,6 +41,7 @@ public class GreedyAlgorithm {
             }
 
             if (!route.getNodes().isEmpty()) {
+                route.addNode(depot, 0, problem.getCapacity());
                 solution.add(route);
             }
         }

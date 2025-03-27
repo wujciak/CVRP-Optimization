@@ -1,6 +1,7 @@
 import solvers.GreedyAlgorithm.GreedyAlgorithm;
 import solvers.RandomSearch.RandomSearch;
 import solvers.GeneticAlgorithm.GeneticAlgorithm;
+import solvers.SimulatedAnnealing.SimulatedAnnealing;
 import utils.input.CVRP;
 import utils.input.Parser;
 import utils.output.Evaluator;
@@ -16,8 +17,8 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\basic-instances\\A-n32-k5.vrp.txt";
-        String instance = "A-n32-k5";
+        String instance = "A-n60-k9.vrp.txt";
+        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\hard-instances\\" + instance;
 
         try {
             System.out.println("Parsing started...");
@@ -28,6 +29,7 @@ public class Main {
             runRandomSearch(problem, evaluator, instance);
             runGeneticAlgorithm(problem, evaluator, instance);
             runGreedyAlgorithm(problem, evaluator, instance);
+            runSA(problem, evaluator, instance);
             System.out.println("Whole program completed.");
 
         } catch (IOException e) {
@@ -79,15 +81,23 @@ public class Main {
         List<Double> scores = new ArrayList<>();
         scores.add(bestScore);
 
-        // Debugging: Print routes and total distance
-        System.out.println("Greedy Algorithm Solution:");
-        for (int i = 0; i < bestSolution.size(); i++) {
-            System.out.println("Route " + (i + 1) + ": " + bestSolution.get(i).getNodes());
-        }
-        System.out.println("Total Evaluated Distance: " + bestScore);
-
         System.out.println("Greedy Algorithm completed. ");
         logResults("Greedy Algorithm [1x]", scores, 1, instance);
+    }
+
+    /**
+     * Method for running SA
+     */
+    private static void runSA(CVRP problem, Evaluator evaluator, String instance) {
+        System.out.println("SA Algorithm running... ");
+
+        SimulatedAnnealing sa = new SimulatedAnnealing(problem, evaluator);
+        List<RouteArray> bestSolution = sa.solve();
+        double bestScore = evaluator.calculateScore(bestSolution);
+        List<Double> scores = new ArrayList<>();
+        scores.add(bestScore);
+        System.out.println("SA Algorithm completed. ");
+        logResults("SA Algorithm [10x]", scores, 10, instance);
     }
 
     /**
