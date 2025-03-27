@@ -7,12 +7,14 @@ import java.util.List;
  * Class representing route from solver.
  */
 public class RouteArray {
-    List<Integer> nodes;
-    int currentLoad;
+    private final List<Integer> nodes;
+    private int currentLoad;
+    private final int depotId;
 
-    public RouteArray() {
-        nodes = new ArrayList<>();
-        currentLoad = 0;
+    public RouteArray(int depotId) {
+        this.depotId = depotId;
+        this.nodes = new ArrayList<>();
+        this.currentLoad = 0;
     }
 
     public void addNode(int node, int demand, int capacity) {
@@ -29,5 +31,9 @@ public class RouteArray {
 
     public int getCurrentLoad() {
         return currentLoad;
+    }
+
+    public int getDepotId() {
+        return depotId;
     }
 }

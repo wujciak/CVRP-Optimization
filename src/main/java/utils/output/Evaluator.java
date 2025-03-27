@@ -15,14 +15,19 @@ public class Evaluator {
     }
 
     public double calculateScore(List<RouteArray> routes) {
-        double score = 0.0;
+        double totalDistance = 0.0;
+
         for (RouteArray route : routes) {
-            for (int i = 0; i < route.nodes.size() - 1; i++) {
-                score += problem.getDistance(route.nodes.get(i), route.nodes.get(i + 1));
-            }
-            // return from last node to depot
-            score += problem.getDistance(route.nodes.getLast(), problem.getDepotId());
+            List<Integer> nodes = route.getNodes();
+
+            // From depot to first node
+            totalDistance += problem.getDistance(route.getDepotId(), nodes.getFirst());
+            // Between nodes
+            for (int i = 0; i < nodes.size() - 1; i++) { totalDistance += problem.getDistance(nodes.get(i), nodes.get(i + 1)); }
+            // From last node to depot
+            totalDistance += problem.getDistance(nodes.getLast(), problem.getDepotId());
         }
-        return score;
+
+        return totalDistance;
     }
 }

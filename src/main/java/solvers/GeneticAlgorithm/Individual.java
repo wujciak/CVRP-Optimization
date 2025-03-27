@@ -1,66 +1,64 @@
 package solvers.GeneticAlgorithm;
 
 import utils.input.CVRP;
+import utils.output.Evaluator;
 import utils.output.RouteArray;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * (Solution)
+ */
 class Individual {
-    public static final int popSize = 100;
-    private final List<Integer> genes = new ArrayList<>();
-    private int fitness;
+    private final List<Integer> sequence;
+    private double fitness;
     private final CVRP problem;
 
     public Individual(CVRP problem) {
         this.problem = problem;
+        this.sequence = new ArrayList<>();
     }
 
-    public Individual(List<Integer> genes, CVRP problem) {
+    public Individual(List<Integer> sequence, CVRP problem) {
         this.problem = problem;
-        this.genes.addAll(genes);
+        this.sequence = new ArrayList<>(sequence);
     }
 
-    public int getFitness() {
+    public double getFitness() {
         return fitness;
     }
 
-    public void setFitness(int fitness) {
+    public void setFitness(double fitness) {
         this.fitness = fitness;
     }
 
     public int getGene(int id) {
-        return genes.get(id);
+        return sequence.get(id);
     }
 
     public void setGene(int id, int gene) {
-        genes.set(id, gene);
+        sequence.set(id, gene);
     }
 
-    public List<Integer> getGenes() {
-        return genes;
+    public List<Integer> getSequence() {
+        return sequence;
     }
 
-    public int eval() {
-        RouteArray route = new RouteArray();
-        fitness = 0;
+    public CVRP getProblem() {return problem;}
 
-        for (Integer node : genes) {
-            int demand = problem.getDemand(node);
-            int capacity = problem.getCapacity();
+    public void evaluate(Evaluator evaluator) {
+        RouteArray route = new RouteArray(problem.getDepotId());
+
+        for (Integer node : sequence) {
             try {
-                route.addNode(node, demand, capacity);
+                route.addNode(node, problem.getDemand(node), problem.getCapacity());
             } catch (IllegalArgumentException e) {
                 System.err.println(e.getMessage());
-                return Integer.MAX_VALUE; // penalty
+                this.fitness = Integer.MAX_VALUE; // penalty
+                return;
             }
         }
-
-        for (int i = 0; i < route.getNodes().size() - 1; i++) {
-            fitness += (int) problem.getDistance(route.getNodes().get(i), route.getNodes().get(i + 1));
-        }
-        fitness += (int) problem.getDistance(route.getNodes().getLast(), problem.getDepotId());
-
-        return fitness;
+        this.fitness = evaluator.calculateScore(List.of(route));
     }
 }
