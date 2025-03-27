@@ -23,8 +23,8 @@ public class RandomSearch {
         this.numIterations = numIterations;
     }
 
-    public List<RouteArray> solve() {
-        List<RouteArray> bestSolution = null;
+    public List<Double> solve() {
+        List<Double> allScores = new ArrayList<>();
         double bestScore = Double.MAX_VALUE;
         Random rand = new Random();
 
@@ -32,14 +32,14 @@ public class RandomSearch {
             List<Integer> randomRoute = generateRandomRoute();
             List<RouteArray> routes = convertToRoutes(randomRoute);
             double score = evaluator.calculateScore(routes);
+            allScores.add(score);
 
             if (score < bestScore) {
                 bestScore = score;
-                bestSolution = routes;
             }
         }
 
-        return bestSolution;
+        return allScores;
     }
 
     private List<Integer> generateRandomRoute() {
