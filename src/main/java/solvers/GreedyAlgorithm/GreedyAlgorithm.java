@@ -20,48 +20,54 @@ public class GreedyAlgorithm {
 
     public List<RouteArray> solve() {
         List<RouteArray> solution = new ArrayList<>();
-        Set<Integer> visited = new HashSet<>();
-        int depot = problem.getDepotId();
+        Set<Integer> unvisited = new HashSet<>();
 
-        while (visited.size() < problem.getDimension() - 1) {
-            RouteArray route = new RouteArray(depot);
-            int currentNode = depot;
-            int remainingCapacity = problem.getCapacity();
-
-            while (true) {
-                int nextNode = findNearestNeighbor(currentNode, visited, remainingCapacity);
-                if (nextNode == -1) break;
-                int demand = problem.getDemand(nextNode);
-                if (remainingCapacity < demand) break;
-
-                route.addNode(nextNode, demand, problem.getCapacity());
-                visited.add(nextNode);
-                remainingCapacity -= demand;
-                currentNode = nextNode;
-            }
-
-            if (!route.getNodes().isEmpty()) {
-                route.addNode(depot, 0, problem.getCapacity());
-                solution.add(route);
+        for (int i = 1; i <= problem.getDimension(); i++) {
+            if (i != problem.getDepotId()) {
+                unvisited.add(i);
             }
         }
 
-        double totalDistance = evaluator.calculateScore(solution);
-        System.out.println("Greedy Algorithm Total Distance: " + totalDistance);
+        while (!unvisited.isEmpty()) {
+            RouteArray route = new RouteArray(problem.getDepotId());
+            int currentNode = problem.getDepotId();
+            int currentLoad = 0;
 
+            // Always start route with depot
+            route.addNode(problem.getDepotId(), 0, problem.getCapacity());
+
+            while (true) {
+                int nextNode = findNearestFeasibleNeighbor(currentNode, unvisited, currentLoad);
+                if (nextNode == -1) break;
+
+                int demand = problem.getDemand(nextNode);
+                route.addNode(nextNode, demand, problem.getCapacity());
+                unvisited.remove(nextNode);
+                currentLoad += demand;
+                currentNode = nextNode;
+            }
+
+            // Always end route with depot
+            route.addNode(problem.getDepotId(), 0, problem.getCapacity());
+            solution.add(route);
+        }
+
+        double totalDistance = evaluator.calculateScore(solution);
+        System.out.println("Greedy Solution Distance: " + totalDistance);
         return solution;
     }
 
-    private int findNearestNeighbor(int currentNode, Set<Integer> visited, int remainingCapacity) {
-        double minDistance = Double.MAX_VALUE;
+    private int findNearestFeasibleNeighbor(int currentNode, Set<Integer> unvisited, int currentLoad) {
         int nearestNode = -1;
+        double minDistance = Double.MAX_VALUE;
 
-        for (int i = 1; i <= problem.getDimension(); i++) {
-            if (!visited.contains(i) && i != problem.getDepotId() && problem.getDemand(i) <= remainingCapacity) {
-                double distance = problem.getDistance(currentNode, i);
+        for (int candidate : unvisited) {
+            int demand = problem.getDemand(candidate);
+            if (currentLoad + demand <= problem.getCapacity()) {
+                double distance = problem.getDistance(currentNode, candidate);
                 if (distance < minDistance) {
                     minDistance = distance;
-                    nearestNode = i;
+                    nearestNode = candidate;
                 }
             }
         }

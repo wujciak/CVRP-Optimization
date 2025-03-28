@@ -44,18 +44,27 @@ class Individual {
         RouteArray currentRoute = new RouteArray(problem.getDepotId());
         routes.add(currentRoute);
         int currentLoad = 0;
+        int lastVisited = problem.getDepotId(); // depot as starting point
 
         for (int node : sequence) {
             int demand = problem.getDemand(node);
+
             if (currentLoad + demand > problem.getCapacity()) {
-                // Return to depot and start new route
-                currentRoute = new RouteArray(problem.getDepotId());
+                currentRoute.addNode(problem.getDepotId(), 0, problem.getCapacity()); // return to depot
+                currentRoute = new RouteArray(problem.getDepotId()); // start new route
                 routes.add(currentRoute);
                 currentLoad = 0;
+                lastVisited = problem.getDepotId();
             }
             currentRoute.addNode(node, demand, problem.getCapacity());
             currentLoad += demand;
+            lastVisited = node;
         }
+
+        if (lastVisited != problem.getDepotId()) {
+            currentRoute.addNode(problem.getDepotId(), 0, problem.getCapacity());
+        }
+
         this.fitness = evaluator.calculateScore(routes);
     }
 }

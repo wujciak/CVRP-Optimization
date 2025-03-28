@@ -33,7 +33,11 @@ public class Parser {
                         int y = Integer.parseInt(parts[2]);
                         coordinates.put(id, new int[]{x, y});
                     }
-                } else if (line.startsWith("DEMAND_SECTION")) {
+                }
+
+                assert line != null;
+                if (line.startsWith("DEMAND_SECTION")) {
+                    System.out.println("Parsing DEMAND_SECTION...");  // Debug
                     while ((line = br.readLine()) != null && !line.startsWith("DEPOT_SECTION")) {
                         String[] parts = line.trim().split("\\s+");
                         if (parts.length < 2) continue;
@@ -41,7 +45,10 @@ public class Parser {
                         int demand = Integer.parseInt(parts[1]);
                         demands.put(id, demand);
                     }
-                } else if (line.startsWith("DEPOT_SECTION")) {
+                }
+
+                assert line != null;
+                if (line.startsWith("DEPOT_SECTION")) {
                     String depotLine = br.readLine();
                     if (depotLine != null && !depotLine.trim().equals("-1")) {
                         depotId = Integer.parseInt(depotLine.trim());

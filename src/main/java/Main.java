@@ -32,10 +32,10 @@ public class Main {
             System.out.println("Parsing completed.");
             Evaluator evaluator = new Evaluator(problem);
 
-            runRandomSearch(problem, evaluator, instance);
+            //runRandomSearch(problem, evaluator, instance);
             runGeneticAlgorithm(problem, evaluator, instance, popSize, generations, crossoverProb, mutationProb, tournamentSize);
-            runGreedyAlgorithm(problem, evaluator, instance);
-            runSA(problem, evaluator, instance);
+//            runGreedyAlgorithm(problem, evaluator, instance);
+//            runSA(problem, evaluator, instance);
             System.out.println("Whole program completed.");
 
         } catch (IOException e) {
@@ -61,7 +61,7 @@ public class Main {
      * Method for running Genetic Algorithm 10 times
      */
     private static void runGeneticAlgorithm(CVRP problem, Evaluator evaluator, String instance, int popSize, int generations, double crossoverProb, double mutationProb, int tournamentSize) {
-        int runs = 10;
+        int runs = 1;
         List<Double> scores = new ArrayList<>();
         System.out.println("Genetic Algorithm running... ");
 

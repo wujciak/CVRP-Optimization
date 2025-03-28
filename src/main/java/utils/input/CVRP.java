@@ -46,7 +46,10 @@ public class CVRP {
     }
 
     public int getDemand(int id) {
-        return demands.getOrDefault(id, 0);
+        if (!demands.containsKey(id)) {
+            throw new IllegalArgumentException("Error: ID " + id + " not found in demands!");
+        }
+        return demands.get(id);
     }
 
     public int getDepotId() {

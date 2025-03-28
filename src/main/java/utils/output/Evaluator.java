@@ -16,6 +16,7 @@ public class Evaluator {
 
     public double calculateScore(List<RouteArray> routes) {
         double totalDistance = 0.0;
+        System.out.println("Evaluating solution with " + routes.size() + " routes.");
 
         for (RouteArray route : routes) {
             List<Integer> nodes = route.getNodes();
@@ -24,27 +25,35 @@ public class Evaluator {
             int capacity = problem.getCapacity(); // max value truck can carry
             int lastVisited = depot;
 
-            for (int node : nodes) {
-                int demand = problem.getDemand(node);
+            System.out.println("New Route Starting at Depot " + depot);
 
-                // check demand and return to depot if needed
-                if (truckLoad + demand > capacity) {
-                    // Return to depot
-                    totalDistance += problem.getDistance(lastVisited, depot);
-                    lastVisited = depot;
+            for (int node : nodes) {
+                if (node == depot) {
+                    System.out.println("Returning to Depot.");
                     truckLoad = 0;
+                    continue;
                 }
 
-                // Travel to the next node
-                totalDistance += problem.getDistance(lastVisited, node);
+                int demand = problem.getDemand(node);
                 truckLoad += demand;
+                // check feasibility
+                if (truckLoad > capacity) {
+                    System.out.println("ERROR: Capacity exceeded! Invalid route.");
+                    return Double.MAX_VALUE; // penalty for impossible solution
+                }
+
+                double distance = problem.getDistance(lastVisited, node);
+                totalDistance += distance;
+                System.out.println("Traveling from " + lastVisited + " to " + node + " | Distance: " + distance);
                 lastVisited = node;
             }
 
-            // Return to depot at the end
-            totalDistance += problem.getDistance(lastVisited, depot);
+            double returnDistance = problem.getDistance(lastVisited, depot);
+            totalDistance += returnDistance;
+            System.out.println("Returning from " + lastVisited + " to depot " + depot + " | Distance: " + returnDistance);
         }
 
+        System.out.println("Total Score (Distance): " + totalDistance);
         return totalDistance;
     }
 }
