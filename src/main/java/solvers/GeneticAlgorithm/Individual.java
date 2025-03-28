@@ -41,18 +41,21 @@ class Individual {
 
     public void evaluate(Evaluator evaluator) {
         List<RouteArray> routes = new ArrayList<>();
-        RouteArray route = new RouteArray(problem.getDepotId());
+        RouteArray currentRoute = new RouteArray(problem.getDepotId());
+        routes.add(currentRoute);
+        int currentLoad = 0;
 
-        for (Integer node : sequence) {
-            try {
-                route.addNode(node, problem.getDemand(node), problem.getCapacity());
-            } catch (IllegalArgumentException e) {
-                routes.add(route);
-                route = new RouteArray(problem.getDepotId());
-                route.addNode(node, problem.getDemand(node), problem.getCapacity());
+        for (int node : sequence) {
+            int demand = problem.getDemand(node);
+            if (currentLoad + demand > problem.getCapacity()) {
+                // Return to depot and start new route
+                currentRoute = new RouteArray(problem.getDepotId());
+                routes.add(currentRoute);
+                currentLoad = 0;
             }
+            currentRoute.addNode(node, demand, problem.getCapacity());
+            currentLoad += demand;
         }
-        routes.add(route);
         this.fitness = evaluator.calculateScore(routes);
     }
 }

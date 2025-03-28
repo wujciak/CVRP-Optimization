@@ -1,7 +1,6 @@
 package solvers.GeneticAlgorithm;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Class for selecting individuals for reproduction according to their fitness
@@ -15,14 +14,14 @@ class Selection {
 
     public Individual tournamentSelection(List<Individual> population) {
         Random rand = new Random();
-        Individual best = population.get(rand.nextInt(population.size()));
+        List<Individual> competitors = new ArrayList<>();
+        while (competitors.size() < tournamentSize) {
+            Individual candidate = population.get(rand.nextInt(population.size()));
 
-        for (int i = 0; i < tournamentSize; i++) {
-            Individual competitor = population.get(rand.nextInt(population.size()));
-            if (competitor.getFitness() < best.getFitness()) {
-                best = competitor;
+            if (!competitors.contains(candidate)) {
+                competitors.add(candidate);
             }
         }
-        return best;
+        return Collections.min(competitors, Comparator.comparingDouble(Individual::getFitness));
     }
 }

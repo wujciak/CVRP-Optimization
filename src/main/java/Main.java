@@ -17,8 +17,14 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        String instance = "A-n60-k9.vrp.txt";
-        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\hard-instances\\" + instance;
+        String instance = "A-n32-k5.vrp.txt";
+        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\basic-instances\\" + instance;
+
+        int popSize = 100;
+        int generations = 500;
+        double crossoverProb = 0.8;
+        double mutationProb = 0.01;
+        int tournamentSize = 5;
 
         try {
             System.out.println("Parsing started...");
@@ -27,7 +33,7 @@ public class Main {
             Evaluator evaluator = new Evaluator(problem);
 
             runRandomSearch(problem, evaluator, instance);
-            runGeneticAlgorithm(problem, evaluator, instance);
+            runGeneticAlgorithm(problem, evaluator, instance, popSize, generations, crossoverProb, mutationProb, tournamentSize);
             runGreedyAlgorithm(problem, evaluator, instance);
             runSA(problem, evaluator, instance);
             System.out.println("Whole program completed.");
@@ -54,13 +60,13 @@ public class Main {
     /**
      * Method for running Genetic Algorithm 10 times
      */
-    private static void runGeneticAlgorithm(CVRP problem, Evaluator evaluator, String instance) {
+    private static void runGeneticAlgorithm(CVRP problem, Evaluator evaluator, String instance, int popSize, int generations, double crossoverProb, double mutationProb, int tournamentSize) {
         int runs = 10;
         List<Double> scores = new ArrayList<>();
         System.out.println("Genetic Algorithm running... ");
 
         for (int i = 0; i < runs; i++) {
-            GeneticAlgorithm ga = new GeneticAlgorithm(problem, evaluator, 800, 0.85, 0.05, 5, 800);
+            GeneticAlgorithm ga = new GeneticAlgorithm(problem, evaluator, popSize, crossoverProb, mutationProb, tournamentSize, generations);
             List<RouteArray> solution = ga.solve();
             scores.add(evaluator.calculateScore(solution));
         }
