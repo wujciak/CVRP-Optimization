@@ -21,9 +21,9 @@ public class Main {
         String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\basic-instances\\" + instance;
 
         int popSize = 100;
-        int generations = 500;
-        double crossoverProb = 0.8;
-        double mutationProb = 0.01;
+        int generations = 100;
+        double crossoverProb = 0.7;
+        double mutationProb = 0.1;
         int tournamentSize = 5;
 
         try {

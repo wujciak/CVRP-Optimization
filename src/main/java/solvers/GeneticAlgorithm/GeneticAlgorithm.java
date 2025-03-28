@@ -95,18 +95,22 @@ public class GeneticAlgorithm {
             try {
                 route.addNode(node, problem.getDemand(node), problem.getCapacity());
             } catch (IllegalArgumentException e) {
+                route.addNode(problem.getDepotId(), 0, problem.getCapacity()); // Powrót do depotu
                 bestRoutes.add(route);
                 route = new RouteArray(problem.getDepotId());
                 route.addNode(node, problem.getDemand(node), problem.getCapacity());
             }
         }
+        route.addNode(problem.getDepotId(), 0, problem.getCapacity()); // Powrót na koniec
         bestRoutes.add(route);
         return bestRoutes;
     }
 
+
     private List<Integer> generateRandomRoute() {
         List<Integer> route = new ArrayList<>();
-        for (int i = 1; i <= problem.getDimension(); i++) {
+        // 2 for ignoring depot
+        for (int i = 2; i <= problem.getDimension(); i++) {
             route.add(i);
         }
         Collections.shuffle(route);

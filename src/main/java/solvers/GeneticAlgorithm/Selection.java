@@ -17,10 +17,7 @@ class Selection {
         List<Individual> competitors = new ArrayList<>();
         while (competitors.size() < tournamentSize) {
             Individual candidate = population.get(rand.nextInt(population.size()));
-
-            if (!competitors.contains(candidate)) {
-                competitors.add(candidate);
-            }
+            competitors.add(candidate);
         }
         return Collections.min(competitors, Comparator.comparingDouble(Individual::getFitness));
     }

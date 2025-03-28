@@ -26,6 +26,7 @@ class Crossover {
         int size = parentSeq1.size();
         int start = rand.nextInt(size);
         int end = rand.nextInt(size - start) + start;
+        if (start == end) { end = (start + 1) % size; }
         List<Integer> childSequence = new ArrayList<>(Collections.nCopies(size, -1));
 
         for (int i = start; i <= end; i++) {
