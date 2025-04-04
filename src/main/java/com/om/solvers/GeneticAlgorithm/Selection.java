@@ -1,8 +1,5 @@
 package com.om.solvers.GeneticAlgorithm;
 
-import com.om.solvers.RandomSearch.RandomSearch;
-import com.om.utils.Instance;
-
 import java.util.*;
 
 public class Selection {

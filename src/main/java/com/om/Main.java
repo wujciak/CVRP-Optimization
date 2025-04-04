@@ -1,6 +1,7 @@
 package com.om;
 
 import com.om.solvers.GeneticAlgorithm.GeneticAlgorithm;
+import com.om.solvers.GreedySearch.GreedySearch;
 import com.om.solvers.RandomSearch.RandomSearch;
 import com.om.utils.Evaluator;
 import com.om.utils.Instance;
@@ -37,6 +38,9 @@ public class Main {
         }
     }
 
+    /**
+     * Method for running Random Search 1000 times
+     */
     public static void runRandomSearch(Instance instance, String instanceName) {
         int runs = 1000;
         List<Double> scores = new ArrayList<>();
@@ -67,6 +71,15 @@ public class Main {
 
         logResults("Genetic Algorithm [10x]", scores, runs, instanceName);
     }
+
+//    public static void runGreedySearch(Instance instance, String instanceName) {
+//        List<Double> scores = new ArrayList<>();
+//        GreedySearch gs = new GreedySearch();
+//        List<Route> solution = gs.solve();
+//        double evaluator = Evaluator.evaluate(solution, instance.getDistanceMatrix());
+//        scores.add(evaluator);
+//        logResults("Greedy Search [1x]", scores, 1, instanceName);
+//    }
 
     /**
      * Method for saving logs in a file
