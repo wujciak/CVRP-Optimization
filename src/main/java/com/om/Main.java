@@ -14,10 +14,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {
-        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationCVRP\\src\\main\\resources\\instances\\A-n32-k5.vrp.txt";
+        String instanceName = "A-n37-k6.vrp.txt";
+        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationCVRP\\src\\main\\resources\\instances\\" + instanceName;
 
         int popSize = 100;
         int generations = 100;
@@ -28,26 +30,33 @@ public class Main {
         try {
             Instance instance = Parser.parse(filePath);
             Evaluator evaluator = new Evaluator();
-            runGeneticAlgorithm(instance, evaluator, popSize, crossoverProb, mutationProb, tournamentSize, generations);
-//            RandomSearch solver = new RandomSearch(instance);
-//            List<Route> routes = solver.solve();
-//            for (Route route : routes) {
-//                System.out.println(route);
-//            }
-//            double evaluator = Evaluator.evaluate(routes, instance.getDistanceMatrix());
-//            System.out.println(evaluator);
+            runRandomSearch(instance, instanceName);
+            runGeneticAlgorithm(instance, evaluator, popSize, crossoverProb, mutationProb, tournamentSize, generations, instanceName);
         } catch (IOException e) {
             System.err.println("Error loading file: " + e.getMessage());
         }
     }
 
+    public static void runRandomSearch(Instance instance, String instanceName) {
+        int runs = 1000;
+        List<Double> scores = new ArrayList<>();
+
+        for (int i = 0; i < runs; i++) {
+            RandomSearch rs = new RandomSearch(instance);
+            List<Route> solution = rs.solve();
+            double evaluator = Evaluator.evaluate(solution, instance.getDistanceMatrix());
+            scores.add(evaluator);
+        }
+
+        logResults("Random Search [1000x]", scores, runs, instanceName);
+    }
+
     /**
      * Method for running Genetic Algorithm 10 times
      */
-    private static void runGeneticAlgorithm(Instance instance, Evaluator evaluator, int popSize, double crossoverP, double mutationP , int tournamentSize, int maxGenerations) {
+    private static void runGeneticAlgorithm(Instance instance, Evaluator evaluator, int popSize, double crossoverP, double mutationP , int tournamentSize, int maxGenerations, String instanceName) {
         int runs = 10;
         List<Double> scores = new ArrayList<>();
-        System.out.println("Genetic Algorithm running... ");
 
         for (int i = 0; i < runs; i++) {
             GeneticAlgorithm ga = new GeneticAlgorithm(instance, evaluator, popSize, crossoverP, mutationP, tournamentSize, maxGenerations);
@@ -56,14 +65,13 @@ public class Main {
             scores.add(evaluator1);
         }
 
-        System.out.println("Genetic Algorithm completed.");
-        logResults("Genetic Algorithm [10x]", scores, runs, "n32-k5");
+        logResults("Genetic Algorithm [10x]", scores, runs, instanceName);
     }
 
     /**
      * Method for saving logs in a file
      */
-    private static void logResults(String algorithm, List<Double> scores, int iterations, String instance) {
+    private static void logResults(String algorithm, List<Double> scores, int iterations, String instanceName) {
         String fileName = "results.log";
         double best = scores.stream().min(Double::compareTo).orElse(Double.NaN);
         double worst = scores.stream().max(Double::compareTo).orElse(Double.NaN);
@@ -72,7 +80,7 @@ public class Main {
 
         try (FileWriter writer = new FileWriter(fileName, true)) {
             writer.write("\n===========================================\n");
-            writer.write("Instance: " + instance + "\n");
+            writer.write("Instance: " + instanceName + "\n");
             writer.write("Algorithm: " + algorithm + "\n");
             writer.write("Timestamp: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "\n");
             writer.write("Iterations: " + iterations + "\n");
