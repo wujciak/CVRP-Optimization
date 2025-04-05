@@ -14,13 +14,13 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {
         String instanceName = "A-n37-k6.vrp.txt";
-        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationCVRP\\src\\main\\resources\\instances\\" + instanceName;
+        String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\instances\\" + instanceName;
 
         int popSize = 100;
         int generations = 100;
@@ -31,8 +31,25 @@ public class Main {
         try {
             Instance instance = Parser.parse(filePath);
             Evaluator evaluator = new Evaluator();
+
             runRandomSearch(instance, instanceName);
             runGeneticAlgorithm(instance, evaluator, popSize, crossoverProb, mutationProb, tournamentSize, generations, instanceName);
+            runGreedySearch(instance, instanceName);
+//            //Genetic
+//            GeneticAlgorithm ga = new GeneticAlgorithm(instance, evaluator, popSize, crossoverProb, mutationProb, tournamentSize, generations);
+//            List<Route> routes = ga.solve();
+//            double totalDistance = Evaluator.evaluate(routes, instance.getDistanceMatrix());
+//            System.out.println("GA Total distance: " + totalDistance);
+//            for (Route route : routes) {
+//                System.out.println(route);
+//            }
+//            // Greedy
+//            List<Route> routesGS = GreedySearch.solve(instance);
+//            double totalDistanceGS = Evaluator.evaluate(routesGS, instance.getDistanceMatrix());
+//            System.out.println("GS Total distance: " + totalDistanceGS);
+//            for (Route route : routesGS) {
+//                System.out.println(route);
+//            }
         } catch (IOException e) {
             System.err.println("Error loading file: " + e.getMessage());
         }
@@ -44,65 +61,110 @@ public class Main {
     public static void runRandomSearch(Instance instance, String instanceName) {
         int runs = 1000;
         List<Double> scores = new ArrayList<>();
+        List<Route> bestSolution = null;
+        double bestScore = Double.MAX_VALUE;
 
         for (int i = 0; i < runs; i++) {
             RandomSearch rs = new RandomSearch(instance);
             List<Route> solution = rs.solve();
-            double evaluator = Evaluator.evaluate(solution, instance.getDistanceMatrix());
-            scores.add(evaluator);
+            double score = Evaluator.evaluate(solution, instance.getDistanceMatrix());
+            scores.add(score);
+            if (score < bestScore) {
+                bestScore = score;
+                bestSolution = solution;
+            }
         }
 
-        logResults("Random Search [1000x]", scores, runs, instanceName);
+        logResults("Random Search [1000x]", scores, bestSolution, instanceName);
     }
 
     /**
      * Method for running Genetic Algorithm 10 times
      */
-    private static void runGeneticAlgorithm(Instance instance, Evaluator evaluator, int popSize, double crossoverP, double mutationP , int tournamentSize, int maxGenerations, String instanceName) {
+    public static void runGeneticAlgorithm(Instance instance, Evaluator evaluator, int popSize, double crossoverP, double mutationP , int tournamentSize, int maxGenerations, String instanceName) {
         int runs = 10;
         List<Double> scores = new ArrayList<>();
+        List<Route> bestSolution = null;
+        double bestScore = Double.MAX_VALUE;
 
         for (int i = 0; i < runs; i++) {
             GeneticAlgorithm ga = new GeneticAlgorithm(instance, evaluator, popSize, crossoverP, mutationP, tournamentSize, maxGenerations);
             List<Route> solution = ga.solve();
-            double evaluator1 = Evaluator.evaluate(solution, instance.getDistanceMatrix());
-            scores.add(evaluator1);
+            double score = Evaluator.evaluate(solution, instance.getDistanceMatrix());
+            scores.add(score);
+
+            if (score < bestScore) {
+                bestScore = score;
+                bestSolution = solution;
+            }
+
+            System.out.println("\nRun " + (i + 1) + " GA Total Distance: " + score);
+            for (Route route : solution) {
+                System.out.println(route);
+            }
         }
 
-        logResults("Genetic Algorithm [10x]", scores, runs, instanceName);
+        logResults("Genetic Algorithm [10x]", scores, bestSolution, instanceName);
     }
 
-//    public static void runGreedySearch(Instance instance, String instanceName) {
-//        List<Double> scores = new ArrayList<>();
-//        GreedySearch gs = new GreedySearch();
-//        List<Route> solution = gs.solve();
-//        double evaluator = Evaluator.evaluate(solution, instance.getDistanceMatrix());
-//        scores.add(evaluator);
-//        logResults("Greedy Search [1x]", scores, 1, instanceName);
-//    }
+    /**
+     * Method for running greedy algorithm once
+     */
+    public static void runGreedySearch(Instance instance, String instanceName) {
+        List<Route> solution = GreedySearch.solve(instance);
+        double score = Evaluator.evaluate(solution, instance.getDistanceMatrix());
+
+        System.out.println("\nGreedy Search Total Distance: " + score);
+        for (Route route : solution) {
+            System.out.println(route);
+        }
+
+        logResults("Greedy Search [1x]", Collections.singletonList(score), solution, instanceName);
+    }
 
     /**
      * Method for saving logs in a file
      */
-    private static void logResults(String algorithm, List<Double> scores, int iterations, String instanceName) {
-        String fileName = "results.log";
+    private static void logResults(String algorithm, List<Double> scores, List<Route> bestSolution, String instanceName) {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        String fileName = "results_" + instanceName.replace(".txt", "") + "_" + timestamp + ".log";
+        String RESULTS_DIR = "C:\\Users\\Jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\results";
+
+        File dir = new File(RESULTS_DIR);
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            if (!created) {
+                System.err.println("Failed to create directory: " + RESULTS_DIR);
+                return;
+            }
+        }
+        File outputFile = new File(dir, fileName);
+
         double best = scores.stream().min(Double::compareTo).orElse(Double.NaN);
         double worst = scores.stream().max(Double::compareTo).orElse(Double.NaN);
         double avg = scores.stream().mapToDouble(Double::doubleValue).average().orElse(Double.NaN);
         double std = calculateStandardDeviation(scores, avg);
 
-        try (FileWriter writer = new FileWriter(fileName, true)) {
+        try (FileWriter writer = new FileWriter(outputFile, true)) {
             writer.write("\n===========================================\n");
             writer.write("Instance: " + instanceName + "\n");
             writer.write("Algorithm: " + algorithm + "\n");
             writer.write("Timestamp: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "\n");
-            writer.write("Iterations: " + iterations + "\n");
+            writer.write("Iterations: " + scores.size() + "\n");
             writer.write("Best*: " + best + "\n");
             writer.write("Worst: " + worst + "\n");
             writer.write("Avg: " + avg + "\n");
             writer.write("Std: " + std + "\n");
+
+            if (bestSolution != null) {
+                writer.write("\nBest Solution Routes:\n");
+                for (Route route : bestSolution) {
+                    writer.write(route.toString() + "\n");
+                }
+            }
+
             writer.write("===========================================\n\n");
-            System.out.println("Results logged in: " + new File(fileName).getAbsolutePath());
+            System.out.println(algorithm + " results logged in: " + outputFile.getAbsolutePath());
         } catch (IOException e) {
             System.err.println("Error writing to log file: " + e.getMessage());
         }

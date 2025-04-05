@@ -4,10 +4,7 @@ import com.om.utils.Evaluator;
 import com.om.utils.Instance;
 import com.om.utils.Route;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class GeneticAlgorithm {
     public final Instance instance;
@@ -32,31 +29,21 @@ public class GeneticAlgorithm {
         List<Individual> population = initializePopulation();
         Individual bestIndividual = findBestIndividual(population);
 
-        int stagnationCounter = 0;
-        double lastBestFitness = bestIndividual.getFitness();
-
         for (int gen=0; gen < maxGenerations; gen++) {
             population = generateNextGeneration(population);
             Individual currentBestIndividual = findBestIndividual(population);
-
-            if (currentBestIndividual.getFitness() >= lastBestFitness) {
-                stagnationCounter++;
-                if (stagnationCounter >= 20) {
-                    break;
-                }
-            } else {
-                stagnationCounter = 0;
-                lastBestFitness = currentBestIndividual.getFitness();
-            }
-
             if (currentBestIndividual.getFitness() < bestIndividual.getFitness()) {
                 bestIndividual = currentBestIndividual;
             }
         }
 
-        return decodeSolution(bestIndividual);
+        return decodeSolution(bestIndividual, instance);
     }
 
+    /**
+     * Method for initializing population
+     * @return list of individuals
+     */
     private List<Individual> initializePopulation() {
         List<Individual> population = new ArrayList<>();
         for (int i = 0; i < popSize; i++) {
@@ -67,6 +54,33 @@ public class GeneticAlgorithm {
         return population;
     }
 
+    /**
+     * Method for generating random route
+     * @return list of cities ids in a route
+     */
+    private List<Integer> generateRandomRoute() {
+        List<Integer> route = new ArrayList<>();
+        for (int i = 2; i <= instance.getDimension(); i++) {
+            route.add(i);
+        }
+        Collections.shuffle(route);
+        return route;
+    }
+
+    /**
+     * Method for finding individual with best fitness
+     * @param population list of individuals
+     * @return individual object representation
+     */
+    private Individual findBestIndividual(List<Individual> population) {
+        return Collections.min(population, Comparator.comparingDouble(Individual::getFitness));
+    }
+
+    /**
+     * Method for generating next generation
+     * @param population list of individuals
+     * @return List<Individual> new population
+     */
     private List<Individual> generateNextGeneration(List<Individual> population) {
         List<Individual> newPopulation = new ArrayList<>();
         Individual bestIndividual = findBestIndividual(population);
@@ -87,38 +101,36 @@ public class GeneticAlgorithm {
         return newPopulation;
     }
 
-    private Individual findBestIndividual(List<Individual> population) {
-        return Collections.min(population, Comparator.comparingDouble(Individual::getFitness));
-    }
+    /**
+     * Method for decoding individual to the list of routes
+     * @param bestIndividual best found individual
+     * @return List<Route> final solution
+     */
+    private List<Route> decodeSolution(Individual bestIndividual, Instance instance) {
+        List<Route> routes = new ArrayList<>();
+        int capacity = instance.getCapacity();
+        int depot = instance.getDepotId();
+        Map<Integer, Integer> demandMap = instance.getDemandMap();
 
-    private List<Route> decodeSolution(Individual bestIndividual) {
-        List<Route> bestRoutes = new ArrayList<>();
-        Route route = new Route(instance.getDepotId());
+        Route currentRoute = new Route(depot);
+        int currentLoad = 0;
 
-        for (Integer gene : bestIndividual.getSequence()) {
-            try {
-                route.addCity(gene);
-            } catch (IllegalArgumentException e) {
-                route.addCity(instance.getDepotId()); // Powrót do depotu
-                bestRoutes.add(route);
-                route = new Route(instance.getDepotId());
-                route.addCity(gene);
+        for (int gene : bestIndividual.getSequence()) {
+            int demand = demandMap.get(gene);
+            if (currentLoad + demand > capacity) {
+                routes.add(currentRoute);
+                currentRoute = new Route(depot);
+                currentLoad = 0;
             }
+            currentRoute.addCity(gene);
+            currentLoad += demand;
         }
-        route.addCity(instance.getDepotId()); // Powrót na koniec
-        bestRoutes.add(route);
-        return bestRoutes;
-    }
 
-
-    private List<Integer> generateRandomRoute() {
-        List<Integer> route = new ArrayList<>();
-        // 2 for ignoring depot
-        for (int i = 2; i <= instance.getDimension(); i++) {
-            route.add(i);
+        if (!currentRoute.getCities().isEmpty()) {
+            routes.add(currentRoute);
         }
-        Collections.shuffle(route);
-        return route;
+
+        return routes;
     }
 
 }
