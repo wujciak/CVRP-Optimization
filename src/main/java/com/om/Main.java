@@ -3,6 +3,7 @@ package com.om;
 import com.om.solvers.GeneticAlgorithm.GeneticAlgorithm;
 import com.om.solvers.GreedySearch.GreedySearch;
 import com.om.solvers.RandomSearch.RandomSearch;
+import com.om.solvers.SimulatedAnnealing.SimulatedAnnealing;
 import com.om.utils.Evaluator;
 import com.om.utils.Instance;
 import com.om.utils.Parser;
@@ -17,15 +18,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.shuffle;
+
 public class Main {
     public static void main(String[] args) {
         String instanceName = "A-n37-k6.vrp.txt";
         String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\instances\\" + instanceName;
 
-        int popSize = 100;
-        int generations = 100;
-        double crossoverProb = 0.7;
-        double mutationProb = 0.1;
+        int popSize = 600;
+        int generations = 5000;
+        double crossoverProb = 0.75;
+        double mutationProb = 0.01;
         int tournamentSize = 5;
 
         try {
@@ -35,21 +38,7 @@ public class Main {
             runRandomSearch(instance, instanceName);
             runGeneticAlgorithm(instance, evaluator, popSize, crossoverProb, mutationProb, tournamentSize, generations, instanceName);
             runGreedySearch(instance, instanceName);
-//            //Genetic
-//            GeneticAlgorithm ga = new GeneticAlgorithm(instance, evaluator, popSize, crossoverProb, mutationProb, tournamentSize, generations);
-//            List<Route> routes = ga.solve();
-//            double totalDistance = Evaluator.evaluate(routes, instance.getDistanceMatrix());
-//            System.out.println("GA Total distance: " + totalDistance);
-//            for (Route route : routes) {
-//                System.out.println(route);
-//            }
-//            // Greedy
-//            List<Route> routesGS = GreedySearch.solve(instance);
-//            double totalDistanceGS = Evaluator.evaluate(routesGS, instance.getDistanceMatrix());
-//            System.out.println("GS Total distance: " + totalDistanceGS);
-//            for (Route route : routesGS) {
-//                System.out.println(route);
-//            }
+            runSimulatedAnnealing(instance, instanceName);
         } catch (IOException e) {
             System.err.println("Error loading file: " + e.getMessage());
         }
@@ -75,7 +64,7 @@ public class Main {
             }
         }
 
-        logResults("Random Search [1000x]", scores, bestSolution, instanceName);
+        logResults("Random Search [1000x]", scores, bestSolution, instanceName, "C:\\Users\\Jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\results\\RS");
     }
 
     /**
@@ -104,7 +93,7 @@ public class Main {
             }
         }
 
-        logResults("Genetic Algorithm [10x]", scores, bestSolution, instanceName);
+        logResults("Genetic Algorithm [10x]", scores, bestSolution, instanceName, "C:\\Users\\Jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\results\\GA");
     }
 
     /**
@@ -119,16 +108,44 @@ public class Main {
             System.out.println(route);
         }
 
-        logResults("Greedy Search [1x]", Collections.singletonList(score), solution, instanceName);
+        logResults("Greedy Search [1x]", Collections.singletonList(score), solution, instanceName, "C:\\Users\\Jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\results\\GS");
+    }
+
+
+    /**
+     * Method for running Genetic Algorithm 10 times
+     */
+    public static void runSimulatedAnnealing(Instance instance, String instanceName) {
+        int runs = 10;
+        List<Double> scores = new ArrayList<>();
+        List<Route> bestSolution = null;
+        double bestScore = Double.MAX_VALUE;
+        for (int i = 0; i < runs; i++) {
+            SimulatedAnnealing sa = new SimulatedAnnealing(instance);
+            List<Route> solution = sa.solve();
+            double score = Evaluator.evaluate(solution, instance.getDistanceMatrix());
+            scores.add(score);
+
+            if (score < bestScore) {
+                bestScore = score;
+                bestSolution = solution;
+            }
+
+            System.out.println("\nRun " + (i + 1) + " SA Total Distance: " + score);
+            for (Route route : solution) {
+                System.out.println(route);
+            }
+        }
+
+        logResults("Simulated Annealing [10x]", scores, bestSolution, instanceName, "C:\\Users\\Jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\results\\SA");
     }
 
     /**
      * Method for saving logs in a file
      */
-    private static void logResults(String algorithm, List<Double> scores, List<Route> bestSolution, String instanceName) {
+    private static void logResults(String algorithm, List<Double> scores, List<Route> bestSolution, String instanceName, String RESULTS_DIR) {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String fileName = "results_" + instanceName.replace(".txt", "") + "_" + timestamp + ".log";
-        String RESULTS_DIR = "C:\\Users\\Jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\results";
+        String fileName = algorithm + "_" + instanceName.replace(".txt", "") + "_" + timestamp + ".log";
 
         File dir = new File(RESULTS_DIR);
         if (!dir.exists()) {
