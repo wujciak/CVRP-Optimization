@@ -22,7 +22,7 @@ import static java.util.Collections.shuffle;
 
 public class Main {
     public static void main(String[] args) {
-        String instanceName = "A-n37-k6.vrp.txt";
+        String instanceName = "A-n32-k5.vrp.txt";
         String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\instances\\" + instanceName;
 
         int popSize = 600;
