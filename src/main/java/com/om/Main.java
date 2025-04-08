@@ -18,17 +18,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static java.util.Collections.shuffle;
-
 public class Main {
     public static void main(String[] args) {
-        String instanceName = "A-n32-k5.vrp.txt";
+        String instanceName = "A-n37-k6.vrp.txt";
         String filePath = "C:\\Users\\jakub\\IdeaProjects\\OptimizationStartUp\\src\\main\\resources\\instances\\" + instanceName;
 
-        int popSize = 600;
-        int generations = 5000;
-        double crossoverProb = 0.75;
-        double mutationProb = 0.01;
+        int popSize = 100;
+        int generations = 100;
+        double crossoverProb = 0.7;
+        double mutationProb = 0.1;
         int tournamentSize = 5;
 
         try {
